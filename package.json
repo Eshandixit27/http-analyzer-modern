@@ -1,0 +1,22 @@
+{
+  "name": "http-analyzer-modern",
+  "version": "2.0.0",
+  "description": "Modern HTTP Performance Analyzer supporting HTTP/1.0, 1.1, and HTTP/2",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "sample": "node sample-server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}

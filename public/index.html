@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTTP Performance Analyzer — Modern</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Notification Container -->
+  <div id="notification-container"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="title">
+          <span class="icon">⚡</span>
+          HTTP Performance Analyzer
+        </h1>
+        <p class="subtitle">Test HTTP/1.0, HTTP/1.1, and HTTP/2 requests with real-time RTT measurement</p>
+      </div>
+      <div class="server-status" id="server-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Ready</span>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="request">📡 Make Request</button>
+      <button class="tab-btn" data-tab="server">🖥️ Sample Server</button>
+      <button class="tab-btn" data-tab="history">📊 History</button>
+      <button class="tab-btn" data-tab="compare">📈 Compare</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- REQUEST TAB -->
+      <div class="tab-pane active" id="request-tab">
+        <div class="grid-2">
+          
+          <!-- Raw HTTP Request Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>🔧 Raw HTTP Request (TCP)</h2>
+              <span class="badge badge-primary">HTTP/1.0 & 1.1</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Host</label>
+                <input type="text" id="raw-host" value="127.0.0.1" placeholder="e.g., 127.0.0.1">
+              </div>
+              <div class="form-group">
+                <label>Port</label>
+                <input type="number" id="raw-port" value="8080" placeholder="e.g., 8080">
+              </div>
+              <div class="form-group">
+                <label>Raw Request (use literal \r\n for line breaks)</label>
+                <textarea id="raw-request" rows="10" placeholder="Example:&#10;GET /StudentInformationSystem HTTP/1.0\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n">GET /StudentInformationSystem HTTP/1.0\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n</textarea>
+              </div>
+              <button class="btn btn-primary" id="send-raw-btn">
+                <span class="btn-text">Send Raw Request</span>
+                <span class="spinner"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- HTTP/2 Request Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2>🚀 HTTP/2 Request</h2>
+              <span class="badge badge-success">HTTP/2</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>URL</label>
+                <input type="text" id="h2-url" value="http://127.0.0.1:8080" placeholder="e.g., https://example.com">
+              </div>
+              <div class="form-group">
+                <label>Path</label>
+                <input type="text" id="h2-path" value="/" placeholder="e.g., /api/data">
+              </div>
+              <div class="form-group">
+                <label>Method</label>
+                <select id="h2-method">
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Request Body (for POST/PUT)</label>
+                <textarea id="h2-body" rows="4" placeholder='{"key": "value"}'></textarea>
+              </div>
+              <button class="btn btn-success" id="send-h2-btn">
+                <span class="btn-text">Send HTTP/2 Request</span>
+                <span class="spinner"></span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Results Section -->
+        <div class="card result-card" id="result-section" style="display:none;">
+          <div class="card-header">
+            <h2>📥 Response</h2>
+            <div class="result-meta">
+              <span class="result-rtt" id="result-rtt">RTT: -- ms</span>
+              <span class="result-size" id="result-size">Size: -- bytes</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <pre id="result-output"></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SERVER TAB -->
+      <div class="tab-pane" id="server-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2>🖥️ Sample Server Control</h2>
+          </div>
+          <div class="card-body">
+            <p class="help-text">Start a local test server to send requests against. Choose between Simple and REST modes.</p>
+            
+            <div class="form-group">
+              <label>Server Mode</label>
+              <select id="server-mode">
+                <option value="simple">Simple Mode (Basic HTML)</option>
+                <option value="rest">REST Mode (Student Info System)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Port</label>
+              <input type="number" id="server-port" value="8080" placeholder="8080">
+            </div>
+
+            <div class="btn-group">
+              <button class="btn btn-success" id="start-server-btn">
+                ▶️ Start Server
+              </button>
+              <button class="btn btn-danger" id="stop-server-btn" disabled>
+                ⏹️ Stop Server
+              </button>
+            </div>
+
+            <div class="server-info" id="server-info" style="display:none;">
+              <div class="info-card">
+                <h3>Server Running</h3>
+                <p><strong>Mode:</strong> <span id="running-mode">--</span></p>
+                <p><strong>Port:</strong> <span id="running-port">--</span></p>
+                <p><strong>URL:</strong> <code id="running-url">--</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="tab-pane" id="history-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2>📊 Request History</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-secondary" id="refresh-history-btn">🔄 Refresh</button>
+              <button class="btn btn-sm btn-secondary" id="export-csv-btn">📥 Export CSV</button>
+              <button class="btn btn-sm btn-danger" id="clear-history-btn">🗑️ Clear</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Target</th>
+                    <th>RTT (ms)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="history-tbody">
+                  <tr>
+                    <td colspan="5" class="no-data">No requests yet. Send a request to see history.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARE TAB -->
+      <div class="tab-pane" id="compare-tab">
+        <div class="card">
+          <div class="card-header">
+            <h2>📈 Performance Comparison</h2>
+          </div>
+          <div class="card-body">
+            <div id="chart-container" class="chart-container">
+              <canvas id="rtt-chart"></canvas>
+            </div>
+            <p class="help-text">Send multiple requests to see RTT comparison chart.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
